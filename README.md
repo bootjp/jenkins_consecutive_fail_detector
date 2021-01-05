@@ -1,6 +1,8 @@
 # jenkins_consecutive_fail_detector
 
-Notify when there is a consecutive of fail in a job that fails due to various factors.
+Modern systems and jobs are complex, and jobs can fail due to various system reasons.
+However, it's a bit noisy to get a failure notification every time a job can be retried.
+This tool ignores the job being retried and only notifies you when certain conditions are met.
 
 The conditions for notification are
 
