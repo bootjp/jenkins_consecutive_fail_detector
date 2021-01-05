@@ -14,9 +14,9 @@ The conditions for notification are
 
 ```bash
 go get github.com/bootjp/jenkins_consecutive_fail_detector
-JENKIS_TOKEN="secret_token" jenkins_consecutive_fail_detector -url http://example.com:8080/jenkins 
+JENKINS_TOKEN="secret_token" jenkins_consecutive_fail_detector -url http://example.com:8080/jenkins 
 # or
-JENKIS_USER="login_user" JENKIS_password="login_password" jenkins_consecutive_fail_detector -url http://example.com:8080/jenkins 
+JENKINS_USER="login_user" JENKINS_password="login_password" jenkins_consecutive_fail_detector -url http://example.com:8080/jenkins 
 ```
 
 ### install release binary
