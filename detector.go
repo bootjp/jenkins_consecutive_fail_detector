@@ -10,10 +10,14 @@ import (
 	"github.com/bndr/gojenkins"
 )
 
-const ResultFail = "FAILURE"
-const ResultSuccess = "SUCCESS"
-const ResultAbort = "ABORTED"
-const ResultRunning = "RUNNING"
+const JenkinsResultFail = "FAILURE"
+const JenkinsResultSuccess = "SUCCESS"
+const JenkinsResultAbort = "ABORTED"
+const JenkinsResultRunning = "RUNNING"
+
+const ReasonOverHoursFailedJob = "ErrOverHoursFailedJob"
+const ReasonConsecutiveFailJob = "ConsecutiveFailJob"
+const ReasonJenkinsError = "jenkins error"
 
 func main() {
 
@@ -28,6 +32,7 @@ func main() {
 	jenkinsToken := os.Getenv("JENKINS_TOKEN")
 	jenkinsUser := os.Getenv("JENKINS_USER")
 	jenkinsPassword := os.Getenv("JENKINS_PASSWORD")
+	webhookURL := os.Getenv("WEBHOOK_URL")
 
 	var jenkins *gojenkins.Jenkins
 	if jenkinsToken != "" {
@@ -47,14 +52,39 @@ func main() {
 	}
 
 	detectFailJobs := DetectFailJobs(jobs)
-
+	summary := map[string][]*FailJob{}
 	for _, job := range detectFailJobs {
-		fmt.Println("----")
-		fmt.Println(job.Reason)
-		fmt.Println(job.Job.GetName())
-		if job.Err != nil {
-			fmt.Println(job.Err)
+		summary[job.Reason] = append(summary[job.Reason], job)
+	}
+
+	for reason, failJobs := range summary {
+
+		switch reason {
+		case ReasonJenkinsError:
+			fmt.Println("Jobs whose status could not be confirmed due to a Jenkins error")
+		case ReasonOverHoursFailedJob:
+			fmt.Println("Jobs that have been failed for over an hour")
+		case ReasonConsecutiveFailJob:
+			fmt.Println("Jobs that have failed more than once in a row")
 		}
+
+		for _, failJob := range failJobs {
+			if failJob.Err != nil {
+				fmt.Println(failJob.Err)
+			}
+
+			fmt.Println(failJob.JenkinsJob.GetName())
+
+			if lfb, err := failJob.JenkinsJob.GetLastFailedBuild(); err == nil && lfb != nil {
+				fmt.Println(lfb.GetUrl())
+			}
+		}
+
+		fmt.Println("---")
+	}
+
+	if webhookURL != "" {
+		// todo notify slack code
 	}
 
 	exitCode := 0
@@ -83,9 +113,9 @@ func JenkinsInit(url string, auth ...string) *gojenkins.Jenkins {
 }
 
 type FailJob struct {
-	Job    *gojenkins.Job
-	Err    error
-	Reason string
+	JenkinsJob *gojenkins.Job
+	Err        error
+	Reason     string
 }
 
 func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
@@ -104,23 +134,23 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 		if err != nil {
 
 			ej := &FailJob{
-				Job:    job,
-				Err:    err,
-				Reason: "error",
+				JenkinsJob: job,
+				Err:        err,
+				Reason:     ReasonJenkinsError,
 			}
 			errorJobs = append(errorJobs, ej)
 			continue
 		}
 
 		switch lastBuild.GetResult() {
-		case ResultFail:
+		case JenkinsResultFail:
 
 			fail, err := IsOverHoursFailedJob(job)
 			if err != nil {
 				ej := &FailJob{
-					Job:    job,
-					Err:    err,
-					Reason: "error",
+					JenkinsJob: job,
+					Err:        err,
+					Reason:     ReasonJenkinsError,
 				}
 
 				errorJobs = append(errorJobs, ej)
@@ -128,9 +158,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 
 			if fail {
 				ej := &FailJob{
-					Job:    job,
-					Err:    err,
-					Reason: "IsOverHoursFailedJob",
+					JenkinsJob: job,
+					Err:        err,
+					Reason:     ReasonOverHoursFailedJob,
 				}
 
 				errorJobs = append(errorJobs, ej)
@@ -141,24 +171,24 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 
 			if err != nil {
 				ej := &FailJob{
-					Job:    job,
-					Err:    err,
-					Reason: "error",
+					JenkinsJob: job,
+					Err:        err,
+					Reason:     ReasonJenkinsError,
 				}
 				errorJobs = append(errorJobs, ej)
 			}
 
 			if fail {
 				ej := &FailJob{
-					Job:    job,
-					Err:    err,
-					Reason: "IsConsecutiveFailJob",
+					JenkinsJob: job,
+					Err:        err,
+					Reason:     ReasonConsecutiveFailJob,
 				}
 				errorJobs = append(errorJobs, ej)
 				continue
 			}
 
-		case ResultRunning:
+		case JenkinsResultRunning:
 			// retrying job is ignore
 			continue
 		}
@@ -203,12 +233,12 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		}
 
 		switch build.GetResult() {
-		case ResultFail:
+		case JenkinsResultFail:
 			return true, nil
 
-		case ResultAbort:
+		case JenkinsResultAbort:
 			continue
-		case ResultSuccess:
+		case JenkinsResultSuccess:
 			return false, nil
 		}
 
