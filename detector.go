@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/ashwanthkumar/slack-go-webhook"
+
 	"github.com/bndr/gojenkins"
 )
 
@@ -57,34 +59,45 @@ func main() {
 		summary[job.Reason] = append(summary[job.Reason], job)
 	}
 
+	var errors string
 	for reason, failJobs := range summary {
 
 		switch reason {
 		case ReasonJenkinsError:
-			fmt.Println("Jobs whose status could not be confirmed due to a Jenkins error")
+			errors += fmt.Sprintln("Jobs whose status could not be confirmed due to a Jenkins error")
 		case ReasonOverHoursFailedJob:
-			fmt.Println("Jobs that have been failed for over an hour")
+			errors += fmt.Sprintln("Jobs that have been failed for over an hour")
 		case ReasonConsecutiveFailJob:
-			fmt.Println("Jobs that have failed more than once in a row")
+			errors += fmt.Sprintln("Jobs that have failed more than once in a row")
 		}
 
 		for _, failJob := range failJobs {
 			if failJob.Err != nil {
-				fmt.Println(failJob.Err)
+				errors += fmt.Sprintln(failJob.Err)
 			}
 
-			fmt.Println(failJob.JenkinsJob.GetName())
+			errors += fmt.Sprintln(failJob.JenkinsJob.GetName())
 
 			if lfb, err := failJob.JenkinsJob.GetLastFailedBuild(); err == nil && lfb != nil {
-				fmt.Println(lfb.GetUrl())
+				errors += fmt.Sprintln(lfb.GetUrl())
 			}
 		}
 
-		fmt.Println("---")
+		errors += fmt.Sprintln("---")
 	}
 
+	fmt.Println(errors)
+
 	if webhookURL != "" {
-		// todo notify slack code
+		payload := slack.Payload{
+			Text:      errors,
+			Username:  "jenkins_consecutive_fail_detector",
+			IconEmoji: ":warning:",
+		}
+		err := slack.Send(webhookURL, "", payload)
+		if len(err) > 0 {
+			fmt.Printf("error: %s\n", err)
+		}
 	}
 
 	exitCode := 0
