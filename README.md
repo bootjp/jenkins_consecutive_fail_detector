@@ -1,6 +1,6 @@
 # jenkins_consecutive_fail_detector
 
-Notify when there is a series of errors in a job that fails due to various factors.
+Notify when there is a consecutive of fail in a job that fails due to various factors.
 
 The conditions for notification are
 
