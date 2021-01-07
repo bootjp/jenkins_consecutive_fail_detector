@@ -90,7 +90,7 @@ func main() {
 
 	fmt.Println(errors)
 
-	if slackWebhookURL != "" {
+	if slackWebhookURL != "" && len(detectFailJobs) > 0 {
 		payload := slack.Payload{
 			Text:      errors,
 			Username:  "jenkins_consecutive_fail_detector",
