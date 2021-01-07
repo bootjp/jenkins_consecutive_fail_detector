@@ -34,7 +34,9 @@ func main() {
 	jenkinsToken := os.Getenv("JENKINS_TOKEN")
 	jenkinsUser := os.Getenv("JENKINS_USER")
 	jenkinsPassword := os.Getenv("JENKINS_PASSWORD")
-	webhookURL := os.Getenv("WEBHOOK_URL")
+	slackWebhookURL := os.Getenv("SLACK_WEBHOOK_URL")
+	slackUsername := os.Getenv("SLACK_USERNAME")
+	slackChannel := os.Getenv("SLACK_CHANNNEL")
 
 	var jenkins *gojenkins.Jenkins
 	if jenkinsToken != "" {
@@ -88,23 +90,31 @@ func main() {
 
 	fmt.Println(errors)
 
-	if webhookURL != "" {
+	if slackWebhookURL != "" {
 		payload := slack.Payload{
 			Text:      errors,
 			Username:  "jenkins_consecutive_fail_detector",
 			IconEmoji: ":warning:",
 		}
-		err := slack.Send(webhookURL, "", payload)
+
+		if slackUsername != "" {
+			payload.Username = slackUsername
+		}
+		if slackChannel != "" {
+			payload.Channel = slackChannel
+		}
+
+		err := slack.Send(slackWebhookURL, "", payload)
 		if len(err) > 0 {
-			fmt.Printf("error: %s\n", err)
+			fmt.Printf("webhook error: %s\n", err)
 		}
 	}
 
-	exitCode := 0
 	if len(detectFailJobs) > 0 {
-		exitCode = 1
+		os.Exit(1)
 	}
-	os.Exit(exitCode)
+
+	fmt.Printf("%d jonbs checked. all status success or retring now\n", len(jobs))
 }
 
 func JenkinsInit(url string, auth ...string) *gojenkins.Jenkins {
