@@ -29,3 +29,9 @@ JENKINS_TOKEN="secret_token" jenkins_consecutive_fail_detector -url http://examp
 # or
 JENKINS_USER="login_user" JENKINS_PASSWORD="login_password" jenkins_consecutive_fail_detector -url http://example.com:8080/jenkins 
 ```
+
+### Slack notification
+
+Add environment value `SLACK_WEBHOOK` are enable slack webhook.
+Add environment value `SLACK_USERNAME` modify notify slack username.
+Add environment value `SLACK_CHANNNEL` modify notify slack channel.
