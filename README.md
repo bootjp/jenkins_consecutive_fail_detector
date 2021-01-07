@@ -32,6 +32,6 @@ JENKINS_USER="login_user" JENKINS_PASSWORD="login_password" jenkins_consecutive_
 
 ### Slack notification
 
-Add environment value `SLACK_WEBHOOK` are enable slack webhook.
-Add environment value `SLACK_USERNAME` modify notify slack username.
-Add environment value `SLACK_CHANNNEL` modify notify slack channel.
+- Add environment value `SLACK_WEBHOOK` are enable slack webhook.
+- Add environment value `SLACK_USERNAME` modify notify slack username.
+- Add environment value `SLACK_CHANNNEL` modify notify slack channel.
