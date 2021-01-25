@@ -21,7 +21,11 @@ const ReasonOverHoursFailedJob = "ErrOverHoursFailedJob"
 const ReasonConsecutiveFailJob = "ConsecutiveFailJob"
 const ReasonJenkinsError = "jenkins error"
 
+var logger *log.Logger
+
 func main() {
+
+	logger = log.New(os.Stderr, "", log.Ldate|log.Ltime)
 
 	url := flag.String("url", "", "jenkins server url")
 	flag.Parse()
@@ -156,6 +160,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 		lastBuild, err := job.GetLastBuild()
 		if err != nil {
 
+			logger.Println("got err GetLastBuild")
+			logger.Println(err)
+
 			ej := &FailJob{
 				JenkinsJob: job,
 				Err:        err,
@@ -223,6 +230,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
 	latestBuild, err := job.GetLastBuild()
 	if err != nil {
+		logger.Println("got err GetLastBuild")
+		logger.Println(err)
+
 		return false, err
 	}
 
@@ -236,11 +246,16 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 	buildIds, err := job.GetAllBuildIds()
 
 	if err != nil {
+		logger.Println("got err GetAllBuildIds")
+		logger.Println(err)
+
 		return false, err
 	}
 
 	lastBuild, err := job.GetLastBuild()
 	if err != nil {
+		logger.Println("got err GetLastBuild")
+		logger.Println(err)
 		return false, err
 	}
 
@@ -252,6 +267,8 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 
 		build, err := job.GetBuild(buildId.Number)
 		if err != nil {
+			logger.Println("got err GetBuild")
+			logger.Println(err)
 			return false, err
 		}
 
