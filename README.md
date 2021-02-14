@@ -1,3 +1,5 @@
+<a href="https://codeclimate.com/github/bootjp/jenkins_consecutive_fail_detector/maintainability"><img src="https://api.codeclimate.com/v1/badges/73689e32f0fd15762eb6/maintainability" /></a>
+
 # jenkins_consecutive_fail_detector
 
 Modern systems and jobs are complex, and jobs can fail due to various system reasons.
