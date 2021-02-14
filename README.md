@@ -1,6 +1,7 @@
-<a href="https://codeclimate.com/github/bootjp/jenkins_consecutive_fail_detector/maintainability"><img src="https://api.codeclimate.com/v1/badges/73689e32f0fd15762eb6/maintainability" /></a>
+
 
 # jenkins_consecutive_fail_detector
+<a href="https://codeclimate.com/github/bootjp/jenkins_consecutive_fail_detector/maintainability"><img src="https://api.codeclimate.com/v1/badges/73689e32f0fd15762eb6/maintainability" /></a>
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector?ref=badge_shield)
 
 
