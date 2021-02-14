@@ -1,6 +1,8 @@
 <a href="https://codeclimate.com/github/bootjp/jenkins_consecutive_fail_detector/maintainability"><img src="https://api.codeclimate.com/v1/badges/73689e32f0fd15762eb6/maintainability" /></a>
 
 # jenkins_consecutive_fail_detector
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector?ref=badge_shield)
+
 
 Modern systems and jobs are complex, and jobs can fail due to various system reasons.
 However, it's a bit noisy to get a failure notification every time a job can be retried.
@@ -37,3 +39,7 @@ JENKINS_USER="login_user" JENKINS_PASSWORD="login_password" jenkins_consecutive_
 - Add environment value `SLACK_WEBHOOK` are enable slack webhook.
 - Add environment value `SLACK_USERNAME` modify notify slack username.
 - Add environment value `SLACK_CHANNNEL` modify notify slack channel.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbootjp%2Fjenkins_consecutive_fail_detector?ref=badge_large)
