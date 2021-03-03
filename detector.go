@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
-
 	"github.com/bndr/gojenkins"
+	"github.com/pkg/errors"
 )
 
 const JenkinsResultFail = "FAILURE"
@@ -21,7 +21,11 @@ const ReasonOverHoursFailedJob = "ErrOverHoursFailedJob"
 const ReasonConsecutiveFailJob = "ConsecutiveFailJob"
 const ReasonJenkinsError = "jenkins error"
 
+var logger *log.Logger
+
 func main() {
+
+	logger = log.New(os.Stderr, "", log.Ldate|log.Ltime)
 
 	url := flag.String("url", "", "jenkins server url")
 	flag.Parse()
@@ -61,38 +65,38 @@ func main() {
 		summary[job.Reason] = append(summary[job.Reason], job)
 	}
 
-	var errors string
+	var errs string
 	for reason, failJobs := range summary {
 
 		switch reason {
 		case ReasonJenkinsError:
-			errors += fmt.Sprintln("Jobs whose status could not be confirmed due to a Jenkins error")
+			errs += fmt.Sprintln("Jobs whose status could not be confirmed due to a Jenkins error")
 		case ReasonOverHoursFailedJob:
-			errors += fmt.Sprintln("Jobs that have been failed for over an hour")
+			errs += fmt.Sprintln("Jobs that have been failed for over an hour")
 		case ReasonConsecutiveFailJob:
-			errors += fmt.Sprintln("Jobs that have failed more than once in a row")
+			errs += fmt.Sprintln("Jobs that have failed more than once in a row")
 		}
 
 		for _, failJob := range failJobs {
 			if failJob.Err != nil {
-				errors += fmt.Sprintln(failJob.Err)
+				errs += fmt.Sprintln(failJob.Err)
 			}
 
-			errors += fmt.Sprintln(failJob.JenkinsJob.GetName())
+			errs += fmt.Sprintln(failJob.JenkinsJob.GetName())
 
 			if lfb, err := failJob.JenkinsJob.GetLastFailedBuild(); err == nil && lfb != nil {
-				errors += fmt.Sprintln(lfb.GetUrl())
+				errs += fmt.Sprintln(lfb.GetUrl())
 			}
 		}
 
-		errors += fmt.Sprintln("---")
+		errs += fmt.Sprintln("---")
 	}
 
-	fmt.Println(errors)
+	fmt.Println(errs)
 
 	if slackWebhookURL != "" && len(detectFailJobs) > 0 {
 		payload := slack.Payload{
-			Text:      errors,
+			Text:      errs,
 			Username:  "jenkins_consecutive_fail_detector",
 			IconEmoji: ":warning:",
 		}
@@ -155,6 +159,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 
 		lastBuild, err := job.GetLastBuild()
 		if err != nil {
+
+			logger.Println("got err GetLastBuild")
+			logger.Println(errors.WithStack(err))
 
 			ej := &FailJob{
 				JenkinsJob: job,
@@ -223,6 +230,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
 	latestBuild, err := job.GetLastBuild()
 	if err != nil {
+		logger.Println("got err GetLastBuild")
+		logger.Println(err)
+
 		return false, err
 	}
 
@@ -236,11 +246,16 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 	buildIds, err := job.GetAllBuildIds()
 
 	if err != nil {
+		logger.Println("got err GetAllBuildIds")
+		logger.Println(errors.WithStack(err))
+
 		return false, err
 	}
 
 	lastBuild, err := job.GetLastBuild()
 	if err != nil {
+		logger.Println("got err GetLastBuild")
+		logger.Println(errors.WithStack(err))
 		return false, err
 	}
 
@@ -252,6 +267,9 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 
 		build, err := job.GetBuild(buildId.Number)
 		if err != nil {
+			logger.Println("got err GetBuild")
+			logger.Println(errors.WithStack(err))
+
 			return false, err
 		}
 
