@@ -51,7 +51,7 @@ func main() {
 
 	var jenkins *gojenkins.Jenkins
 	if jenkinsToken != "" {
-		jenkins = JenkinsInit(*url, jenkinsPassword, jenkinsToken)
+		jenkins = JenkinsInit(*url, jenkinsUser, jenkinsToken)
 	} else {
 		jenkins = JenkinsInit(*url, jenkinsUser, jenkinsPassword)
 	}
