@@ -232,6 +232,7 @@ func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
 	if err != nil {
 		logger.Println("got err GetLastBuild")
 		logger.Println(err)
+		logger.Println(errors.WithStack(err))
 
 		return false, err
 	}
@@ -247,6 +248,7 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 
 	if err != nil {
 		logger.Println("got err GetAllBuildIds")
+		logger.Println(err)
 		logger.Println(errors.WithStack(err))
 
 		return false, err
@@ -255,7 +257,9 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 	lastBuild, err := job.GetLastBuild()
 	if err != nil {
 		logger.Println("got err GetLastBuild")
+		logger.Println(err)
 		logger.Println(errors.WithStack(err))
+
 		return false, err
 	}
 
@@ -268,6 +272,7 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		build, err := job.GetBuild(buildId.Number)
 		if err != nil {
 			logger.Println("got err GetBuild")
+			logger.Println(err)
 			logger.Println(errors.WithStack(err))
 
 			return false, err
@@ -276,7 +281,6 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		switch build.GetResult() {
 		case JenkinsResultFail:
 			return true, nil
-
 		case JenkinsResultAbort:
 			continue
 		case JenkinsResultSuccess:
