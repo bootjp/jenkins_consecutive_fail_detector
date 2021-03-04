@@ -40,10 +40,13 @@ func main() {
 	jenkinsPassword := os.Getenv("JENKINS_PASSWORD")
 	slackWebhookURL := os.Getenv("SLACK_WEBHOOK_URL")
 	slackUsername := os.Getenv("SLACK_USERNAME")
-	// for lower v0.0.5, compatible typo config name.
-	slackChannel := os.Getenv("SLACK_CHANNNEL")
+
+	// Versions lower than v0.0.5 have incorrect settings,
+	// so load with typo for compatibility
+
+	slackChannel := os.Getenv("SLACK_CHANNEL")
 	if slackChannel == "" {
-		slackChannel = os.Getenv("SLACK_CHANNEL")
+		slackChannel = os.Getenv("SLACK_CHANNNEL")
 	}
 
 	var jenkins *gojenkins.Jenkins
