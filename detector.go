@@ -30,7 +30,7 @@ func main() {
 	url := flag.String("url", "", "jenkins server url")
 	flag.Parse()
 	if *url == "" {
-		log.Fatalln("jenkins url is required. -url http://example.com:8080/jenkins ")
+		log.Fatalln("jenkins url is required. -url https://example.com:8080/jenkins ")
 	}
 
 	fmt.Printf("jenkins url: %s\n", *url)
@@ -40,11 +40,18 @@ func main() {
 	jenkinsPassword := os.Getenv("JENKINS_PASSWORD")
 	slackWebhookURL := os.Getenv("SLACK_WEBHOOK_URL")
 	slackUsername := os.Getenv("SLACK_USERNAME")
-	slackChannel := os.Getenv("SLACK_CHANNNEL")
+
+	// Versions lower than v0.0.5 have incorrect settings,
+	// so load with typo for compatibility
+
+	slackChannel := os.Getenv("SLACK_CHANNEL")
+	if slackChannel == "" {
+		slackChannel = os.Getenv("SLACK_CHANNNEL")
+	}
 
 	var jenkins *gojenkins.Jenkins
 	if jenkinsToken != "" {
-		jenkins = JenkinsInit(*url, jenkinsToken)
+		jenkins = JenkinsInit(*url, jenkinsUser, jenkinsToken)
 	} else {
 		jenkins = JenkinsInit(*url, jenkinsUser, jenkinsPassword)
 	}
@@ -159,8 +166,12 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 
 		lastBuild, err := job.GetLastBuild()
 		if err != nil {
+			ids, _ := job.GetAllBuildIds()
+			fmt.Println(ids)
 
-			logger.Println("got err GetLastBuild")
+			logger.Println("got err GetLastBuild by " + job.GetName() + " call by DetectFailJobs")
+			fmt.Printf("%v", lastBuild)
+			logger.Println(err)
 			logger.Println(errors.WithStack(err))
 
 			ej := &FailJob{
@@ -228,34 +239,45 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 }
 
 func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
+	fmt.Println(job.GetAllBuildIds())
 	latestBuild, err := job.GetLastBuild()
 	if err != nil {
-		logger.Println("got err GetLastBuild")
+		logger.Println("got err GetLastBuild by " + job.GetName())
+		fmt.Printf("%v", latestBuild)
 		logger.Println(err)
+		logger.Println(errors.WithStack(err))
 
 		return false, err
 	}
 
-	if time.Since(latestBuild.GetTimestamp()) > 1*time.Hour {
-		return true, nil
-	}
-	return false, nil
+	return time.Since(latestBuild.GetTimestamp()) > 1*time.Hour, nil
 }
 
 func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 	buildIds, err := job.GetAllBuildIds()
 
 	if err != nil {
-		logger.Println("got err GetAllBuildIds")
+		logger.Println("got err GetAllBuild by " + job.GetName() + "")
+		logger.Println(err)
 		logger.Println(errors.WithStack(err))
 
 		return false, err
 	}
 
+	if len(buildIds) > 0 {
+		return false, nil
+	}
+
+	fmt.Println(buildIds)
+	fmt.Println(job.GetName())
+
 	lastBuild, err := job.GetLastBuild()
 	if err != nil {
-		logger.Println("got err GetLastBuild")
+		logger.Println("got err GetLastBuild by " + job.GetName())
+		fmt.Printf("%v", lastBuild)
+		logger.Println(err)
 		logger.Println(errors.WithStack(err))
+
 		return false, err
 	}
 
@@ -268,7 +290,8 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		build, err := job.GetBuild(buildId.Number)
 		if err != nil {
 			logger.Println("got err GetBuild")
-			logger.Println(errors.WithStack(err))
+			logger.Println(err)
+			logger.Println(build, job.GetName(), buildIds)
 
 			return false, err
 		}
@@ -276,7 +299,6 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		switch build.GetResult() {
 		case JenkinsResultFail:
 			return true, nil
-
 		case JenkinsResultAbort:
 			continue
 		case JenkinsResultSuccess:
