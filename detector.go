@@ -264,7 +264,7 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		return false, err
 	}
 
-	if len(buildIds) > 0 {
+	if len(buildIds) == 0 {
 		return false, nil
 	}
 
