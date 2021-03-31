@@ -173,10 +173,14 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 				ej := &FailJob{
 					JenkinsJob: job,
 					Err:        err,
-					Reason:     ReasonOverHoursFailedJob,
+					Reason:     ReasonJenkinsError,
 				}
 				errorJobs = append(errorJobs, ej)
 			}
+		}
+
+		if lastBuild == nil {
+			log.Fatalln("latest build is nil")
 		}
 
 		switch lastBuild.GetResult() {
