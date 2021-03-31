@@ -166,23 +166,17 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 
 		lastBuild, err := job.GetLastBuild()
 		if err != nil {
-			ids, _ := job.GetAllBuildIds()
-			if len(ids) == 0 {
+			switch err.Error() {
+			case "404":
 				continue
+			default:
+				ej := &FailJob{
+					JenkinsJob: job,
+					Err:        err,
+					Reason:     ReasonOverHoursFailedJob,
+				}
+				errorJobs = append(errorJobs, ej)
 			}
-
-			logger.Println("got err GetLastBuild by " + job.GetName() + " call by DetectFailJobs")
-			fmt.Printf("%v", lastBuild)
-			logger.Println(err)
-			logger.Println(errors.WithStack(err))
-
-			ej := &FailJob{
-				JenkinsJob: job,
-				Err:        err,
-				Reason:     ReasonJenkinsError,
-			}
-			errorJobs = append(errorJobs, ej)
-			continue
 		}
 
 		switch lastBuild.GetResult() {
