@@ -167,7 +167,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 		lastBuild, err := job.GetLastBuild()
 		if err != nil {
 			ids, _ := job.GetAllBuildIds()
-			fmt.Println(ids)
+			if len(ids) == 0 {
+				continue
+			}
 
 			logger.Println("got err GetLastBuild by " + job.GetName() + " call by DetectFailJobs")
 			fmt.Printf("%v", lastBuild)
