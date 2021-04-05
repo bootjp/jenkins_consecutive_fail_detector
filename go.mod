@@ -13,3 +13,5 @@ require (
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	moul.io/http2curl v1.0.0 // indirect
 )
+
+replace github.com/bndr/gojenkins => github.com/bootjp/gojenkins v1.0.2
