@@ -288,7 +288,7 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 		}
 
 		build, err := job.GetBuild(buildId.Number)
-		if err != nil {
+		if err != nil && build == nil {
 			logger.Println("got err GetBuild")
 			logger.Println(err)
 			logger.Println(build, job.GetName(), buildIds)
