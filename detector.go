@@ -68,19 +68,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	for _, job := range jobs {
-		fmt.Println(job.GetName())
-	}
 	if ignoreJobNamePat != "" {
 		jobs, err = ExcludeJobNamePattern(jobs, ignoreJobNamePat)
 		if err != nil {
 			log.Fatalln(err)
 		}
-	}
-	fmt.Println("--")
-
-	for _, job := range jobs {
-		fmt.Println(job.GetName())
 	}
 
 	detectFailJobs := DetectFailJobs(jobs)
