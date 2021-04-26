@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
@@ -40,6 +41,7 @@ func main() {
 	jenkinsPassword := os.Getenv("JENKINS_PASSWORD")
 	slackWebhookURL := os.Getenv("SLACK_WEBHOOK_URL")
 	slackUsername := os.Getenv("SLACK_USERNAME")
+	ignoreJobNamePat := os.Getenv("IGNORE_JOB_NAME_PATTERN")
 
 	// Versions lower than v0.0.5 have incorrect settings,
 	// so load with typo for compatibility
@@ -64,6 +66,21 @@ func main() {
 	jobs, err := j.GetAllJobs()
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	for _, job := range jobs {
+		fmt.Println(job.GetName())
+	}
+	if ignoreJobNamePat != "" {
+		jobs, err = ExcludeJobNamePattern(jobs, ignoreJobNamePat)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+	fmt.Println("--")
+
+	for _, job := range jobs {
+		fmt.Println(job.GetName())
 	}
 
 	detectFailJobs := DetectFailJobs(jobs)
@@ -144,6 +161,22 @@ func JenkinsInit(url string, auth ...string) *gojenkins.Jenkins {
 		auth[0],
 	)
 
+}
+
+func ExcludeJobNamePattern(jobs []*gojenkins.Job, pattern string) ([]*gojenkins.Job, error) {
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, err
+	}
+
+	filtered := make([]*gojenkins.Job, 0)
+	for _, job := range jobs {
+		if !re.MatchString(job.GetName()) {
+			filtered = append(filtered, job)
+		}
+	}
+
+	return filtered, nil
 }
 
 type FailJob struct {
