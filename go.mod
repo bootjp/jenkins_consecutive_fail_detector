@@ -14,4 +14,4 @@ require (
 	moul.io/http2curl v1.0.0 // indirect
 )
 
-replace github.com/bndr/gojenkins => github.com/bootjp/gojenkins v1.0.2
+replace github.com/bndr/gojenkins => github.com/bootjp/gojenkins v1.1.0

@@ -2,6 +2,8 @@ github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960 h1:
 github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960/go.mod h1:97O1qkjJBHSSaWJxsTShRIeFy0HWiygk+jnugO9aX3I=
 github.com/bootjp/gojenkins v1.0.2 h1:Qkav8u5+scWasmSoZm1zpuVZ0KkFKConflmy8KILjMU=
 github.com/bootjp/gojenkins v1.0.2/go.mod h1:7OooUoNc7f6g1VFcKfYX4XjI9WJnapMrqqANDwYO1+g=
+github.com/bootjp/gojenkins v1.1.0 h1:28sVJ1Zswj4FNwRkMDk3D4U/xevzJ3mYpMxp8CBglD8=
+github.com/bootjp/gojenkins v1.1.0/go.mod h1:QeskxN9F/Csz0XV/01IC8y37CapKKWvOHa0UHLLX1fM=
 github.com/bootjp/gojenkins v1.1.1-0.20210405052300-d69e453f74ea h1:5Evc00jlYl7bR4t/V1JKiEO/VeqTwCI1JNMkb+IhL6M=
 github.com/bootjp/gojenkins v1.1.1-0.20210405052300-d69e453f74ea/go.mod h1:QeskxN9F/Csz0XV/01IC8y37CapKKWvOHa0UHLLX1fM=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
