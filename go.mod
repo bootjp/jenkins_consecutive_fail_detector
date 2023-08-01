@@ -6,7 +6,7 @@ require (
 	github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960
 	github.com/bndr/gojenkins v1.1.0
 	github.com/pkg/errors v0.9.1
-	golang.org/x/tools v0.11.0
+	golang.org/x/tools v0.11.1
 )
 
 require (
