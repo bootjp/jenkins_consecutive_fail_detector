@@ -1,3 +1,5 @@
+github.com/ashwanthkumar/slack-go-webhook v0.0.0-20181119091704-2a72312a9c79 h1:uS26SvJW0T3Q9QdJ2kw8iSz6mihpVmnFYWTi4eT547M=
+github.com/ashwanthkumar/slack-go-webhook v0.0.0-20181119091704-2a72312a9c79/go.mod h1:97O1qkjJBHSSaWJxsTShRIeFy0HWiygk+jnugO9aX3I=
 github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960 h1:MIEURpsIpyLyy+dZ+GnL8T5P49Tco0ik9cYaUQNnAxE=
 github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960/go.mod h1:97O1qkjJBHSSaWJxsTShRIeFy0HWiygk+jnugO9aX3I=
 github.com/bootjp/gojenkins v1.0.2 h1:Qkav8u5+scWasmSoZm1zpuVZ0KkFKConflmy8KILjMU=
