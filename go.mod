@@ -6,7 +6,7 @@ require (
 	github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960
 	github.com/bndr/gojenkins v1.1.0
 	github.com/pkg/errors v0.9.1
-	golang.org/x/tools v0.14.0
+	golang.org/x/tools v0.15.0
 )
 
 require (
@@ -14,7 +14,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
-	golang.org/x/net v0.16.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
 	moul.io/http2curl v1.0.0 // indirect
 )
 
