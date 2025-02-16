@@ -14,19 +14,21 @@ on:
 # workflow tasks
 jobs:
   generate:
+    strategy:
+      matrix:
+        GOOS: [ 'linux', 'windows' 'darwin']
+        GOARCH: [ 'amd64', 'arm64']
     name: Generate cross-platform builds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
+      - uses: actions/setup-go@v5
         with:
-          platforms: 'linux/amd64, linux/arm64, darwin/amd64, windows/amd64'
-          package: ''
-          name: 'jenkins_consecutive_fail_detector'
-          compress: false
-          dest: 'dist'
+          go-version-file: go.mod
+      - name: Generate release artifacts
+        run: |
+          go build -o dist/jenkins_consecutive_fail_detector_${GOOS}_${GOARCH} 
 
       - name: Release
         uses: softprops/action-gh-release@v2
