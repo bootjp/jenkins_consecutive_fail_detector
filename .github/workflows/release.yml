@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        GOOS: [ 'linux', 'windows' 'darwin']
+        GOOS: [ 'linux', 'windows', 'darwin']
         GOARCH: [ 'amd64', 'arm64']
 
     steps:
