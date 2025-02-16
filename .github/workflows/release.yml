@@ -27,7 +27,10 @@ jobs:
           go-version-file: go.mod
       - name: Generate release artifacts
         run: |
-          go build -o dist/jenkins_consecutive_fail_detector_${GOOS}_${GOARCH} 
+          go build -o dist/jenkins_consecutive_fail_detector_${GOOS}_${GOARCH}
+        env:
+          GOOS: ${{ matrix.GOOS }}
+          GOARCH: ${{ matrix.GOARCH }}
 
       - name: Release
         uses: softprops/action-gh-release@v2
