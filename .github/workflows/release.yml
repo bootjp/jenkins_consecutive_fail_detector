@@ -18,7 +18,6 @@ jobs:
       matrix:
         GOOS: [ 'linux', 'windows' 'darwin']
         GOARCH: [ 'amd64', 'arm64']
-    name: Generate cross-platform builds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
