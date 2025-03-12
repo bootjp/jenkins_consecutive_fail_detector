@@ -213,7 +213,7 @@ func DetectFailJobs(ctx context.Context, jobs []*gojenkins.Job) []*FailJob {
 		switch lastBuild.GetResult() {
 		case JenkinsResultFail:
 
-			fail, err := IsOverHoursFailedJob(nil, job)
+			fail, err := IsOverHoursFailedJob(ctx, job)
 			if err != nil {
 				ej := &FailJob{
 					JenkinsJob: job,
@@ -235,7 +235,7 @@ func DetectFailJobs(ctx context.Context, jobs []*gojenkins.Job) []*FailJob {
 				continue
 			}
 
-			fail, err = IsConsecutiveFailJob(nil, job)
+			fail, err = IsConsecutiveFailJob(ctx, job)
 
 			if err != nil {
 				ej := &FailJob{
