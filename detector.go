@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -26,6 +27,7 @@ var logger *log.Logger
 
 func main() {
 
+	ctx := context.Background()
 	logger = log.New(os.Stderr, "", log.Ldate|log.Ltime)
 
 	url := flag.String("url", "", "jenkins server url")
@@ -58,12 +60,12 @@ func main() {
 		jenkins = JenkinsInit(*url, jenkinsUser, jenkinsPassword)
 	}
 
-	j, err := jenkins.Init()
+	j, err := jenkins.Init(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	jobs, err := j.GetAllJobs()
+	jobs, err := j.GetAllJobs(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -75,7 +77,7 @@ func main() {
 		}
 	}
 
-	detectFailJobs := DetectFailJobs(jobs)
+	detectFailJobs := DetectFailJobs(ctx, jobs)
 	summary := map[string][]*FailJob{}
 	for _, job := range detectFailJobs {
 		summary[job.Reason] = append(summary[job.Reason], job)
@@ -100,7 +102,7 @@ func main() {
 
 			errs += fmt.Sprintln(failJob.JenkinsJob.GetName())
 
-			if lfb, err := failJob.JenkinsJob.GetLastFailedBuild(); err == nil && lfb != nil {
+			if lfb, err := failJob.JenkinsJob.GetLastFailedBuild(ctx); err == nil && lfb != nil {
 				errs += fmt.Sprintln(lfb.GetUrl())
 			}
 		}
@@ -177,11 +179,11 @@ type FailJob struct {
 	Reason     string
 }
 
-func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
+func DetectFailJobs(ctx context.Context, jobs []*gojenkins.Job) []*FailJob {
 
 	var errorJobs []*FailJob
 	for _, job := range jobs {
-		enable, err := job.IsEnabled()
+		enable, err := job.IsEnabled(ctx)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -189,7 +191,7 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 			continue
 		}
 
-		lastBuild, err := job.GetLastBuild()
+		lastBuild, err := job.GetLastBuild(ctx)
 		if err != nil {
 			switch err.Error() {
 			case "404":
@@ -211,7 +213,7 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 		switch lastBuild.GetResult() {
 		case JenkinsResultFail:
 
-			fail, err := IsOverHoursFailedJob(job)
+			fail, err := IsOverHoursFailedJob(ctx, job)
 			if err != nil {
 				ej := &FailJob{
 					JenkinsJob: job,
@@ -233,7 +235,7 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 				continue
 			}
 
-			fail, err = IsConsecutiveFailJob(job)
+			fail, err = IsConsecutiveFailJob(ctx, job)
 
 			if err != nil {
 				ej := &FailJob{
@@ -263,9 +265,9 @@ func DetectFailJobs(jobs []*gojenkins.Job) []*FailJob {
 	return errorJobs
 }
 
-func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
-	fmt.Println(job.GetAllBuildIds())
-	latestBuild, err := job.GetLastBuild()
+func IsOverHoursFailedJob(ctx context.Context, job *gojenkins.Job) (bool, error) {
+	fmt.Println(job.GetAllBuildIds(ctx))
+	latestBuild, err := job.GetLastBuild(ctx)
 	if err != nil {
 		logger.Println("got err GetLastBuild by " + job.GetName())
 		fmt.Printf("%v", latestBuild)
@@ -278,8 +280,8 @@ func IsOverHoursFailedJob(job *gojenkins.Job) (bool, error) {
 	return time.Since(latestBuild.GetTimestamp()) > 1*time.Hour, nil
 }
 
-func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
-	buildIds, err := job.GetAllBuildIds()
+func IsConsecutiveFailJob(ctx context.Context, job *gojenkins.Job) (bool, error) {
+	buildIds, err := job.GetAllBuildIds(ctx)
 
 	if err != nil {
 		logger.Println("got err GetAllBuild by " + job.GetName() + "")
@@ -296,7 +298,7 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 	fmt.Println(buildIds)
 	fmt.Println(job.GetName())
 
-	lastBuild, err := job.GetLastBuild()
+	lastBuild, err := job.GetLastBuild(ctx)
 	if err != nil {
 		logger.Println("got err GetLastBuild by " + job.GetName())
 		fmt.Printf("%v", lastBuild)
@@ -312,12 +314,11 @@ func IsConsecutiveFailJob(job *gojenkins.Job) (bool, error) {
 			continue
 		}
 
-		build, err := job.GetBuild(buildId.Number)
-		if err != nil && build == nil {
+		build, err := job.GetBuild(ctx, buildId.Number)
+		if err != nil {
 			logger.Println("got err GetBuild")
 			logger.Println(err)
 			logger.Println(build, job.GetName(), buildIds)
-
 			return false, err
 		}
 
