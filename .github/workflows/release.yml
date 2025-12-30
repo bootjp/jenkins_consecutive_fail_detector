@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Generate release artifacts
