@@ -2,7 +2,7 @@ module github.com/bootjp/jenkins_consecutive_fail_detector
 
 go 1.23.0
 
-toolchain go1.25.5
+toolchain go1.26.0
 
 require (
 	github.com/ashwanthkumar/slack-go-webhook v0.0.0-20200209025033-430dd4e66960
